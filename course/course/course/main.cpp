@@ -28,12 +28,12 @@ double getmin(double a, double b, double c)
 
 double digui(int rr, double a, double b)
 {
-
+	return 0;
 }
 
 double Getssub(int rr, int r, double a)
 {
-	b*pow(rr, a)*pow(r, a);
+	return pow(rr, a)*pow(r, a);
 }
 
 double Getsub(int rr, int r, int n, double a, double b, double right[])
