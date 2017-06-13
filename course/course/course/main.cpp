@@ -1,82 +1,65 @@
 #include <iostream>
+#include <cmath>
 using namespace std;
+#define MAX 100
 
-double before(int num_, double c_, double r_, double z_)
+int num = 0;
+double z, x, c, v, a, b;
+int piece_time[MAX] = { 0 };
+double w[MAX] = { 0 };
+double W[MAX] = { 0 };
+double sum = 0;
+double t = 0;
+
+double before(double r)
 {
-	double ret = num_ * c_ + (r_ - 1) * z_;
+	double ret = num * c + (r - 1) * z;
 	return ret;
 }
 
-double normal(int num_, double v_)
+double normal()
 {
-	double ret = num_ * v_;
+	double ret = num * v;
 	return ret;
 }
 
-double delay(int num_, double r_, double x_)
+double delay(double r)
 {
-	double ret = (num_ + 1 - r_) * x_;
+	double ret = (num + 1 - r) * x;
 	return ret;
 }
 
-double getmin(double a, double b, double c)
+double getmin(double d1, double d2, double d3)
 {
-	double ret = (a < b) ? a : b;
-	ret = (ret < c) ? ret : c;
+	double ret = (d1 < d2) ? d1 : d2;
+	ret = (ret < d3) ? ret : d3;
 	return ret;
 }
 
-double digui(int rr, double a, double b)
+double GetW(int r)
 {
-	return 0;
-}
-
-double Getssub(int rr, int r, double a)
-{
-	return pow(rr, a)*pow(r, a);
-}
-
-double Getsub(int rr, int r, int n, double a, double b, double right[])
-{
-	double ret = b*pow(rr, a)*pow(r, a)*right[rr];
-	int d = n - rr;
-	if (d > 0)
+	if (r == num)
 	{
-		rr++;
-		Getssub(rr, r, a);
+		return  pow(r, a) * w[r - 1];
 	}
-	return ret;
+	else
+	{
+		double xx = 0;
+		for (int j = r; j < v; j++)
+		{
+			xx += GetW(j + 1);
+		}
+		return pow(r, a) * (w[r - 1] + b * xx);
+	}
 }
 
-double getW(int r,int n, double a, double b, double right[])
+double Getp(int r)
 {
-	int rr = r;
-	double ret = pow(rr, a)*right[rr];
-	int d = n - rr;
-	if (d > 0)
-	{
-		rr++;
-		ret += Getsub(rr, r, n, a, b, right);//7,6
-	}
-
-	return ret;
+	return (piece_time[r] + b * t) * pow(r + 1, a);
 }
 
 int main()
 {
-//#ifndef DEBUG
-//#define DEBUG
-//#endif
-
-#ifdef DEBUG
-	double a,b,c;
-	double x, y;
-	//cin >> a >> b >> c;
-	//cout << getmin(a, b, c) << endl;
-	cin >> x >> y;
-	cout << pow(x, y) << endl;
-#else
-	double num = 0;
 	cout << "请输入要加工的工件个数" << endl;
 	cin >> num;
 	if (!num)
@@ -85,28 +68,33 @@ int main()
 		return 0;
 	}
 
-	int piece_time[100] = { 0 };
 	cout << "请输入加工各工件所需要的时间" << endl;
 	for (int i = 0; i < num; ++i)
 	{
 		cin >> piece_time[i];
 	}
 
-	double z, x, c, v, b, n;
 	cout << "请按顺序输入参数α，β，δ，γ，a，b" << endl;
-	cin >> z >> x >> c >> v >> b >> n;
+	cin >> z >> x >> c >> v >> a >> b;
 
-	double right[100] = { 0 };
-	double Right[100] = { 0 };
-	double sum = 0;
+	//w
 	for (int r = 0; r < num; ++r)
 	{
-		right[r] = getmin(before(num, c, r+1, z), normal(num, v), delay(num, r+1, x));
-		//Right[r] = pow(num, b) * right[r];
-		//sum += Right[r] * piece_time[r];
+		double d1 = before(r + 1);
+		double d2 = normal();
+		double d3 = delay(r + 1);
+		w[r] = getmin(d1, d2, d3);
 	}
 
+	//W
+	for (int r = 0; r < num; ++r)
+	{
+		W[r] = GetW(r + 1);
+		cout << "r = " << r << " Wr = " << W[r] << endl;
+	}
+
+	system("pause");
 	cout << "总的时间成本为：" << sum << endl;
-#endif
+
 	return 0;
 }
