@@ -8,8 +8,11 @@ double z, x, c, v, a, b;
 int piece_time[MAX] = { 0 };
 double w[MAX] = { 0 };
 double W[MAX] = { 0 };
-double sum = 0;
+double P[MAX] = { 0 };
+double T[MAX] = { 0 };
 double t = 0;
+double sum = 0;
+
 
 double before(double r)
 {
@@ -91,6 +94,13 @@ int main()
 	{
 		W[r] = GetW(r + 1);
 		cout << "r = " << r << " Wr = " << W[r] << endl;
+	}
+
+	for (int r = 0; r < num; ++r)
+	{
+		P[r] = Getp(r);
+		t += P[r];
+		T[r] = t;
 	}
 
 	system("pause");
