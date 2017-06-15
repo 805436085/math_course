@@ -12,6 +12,7 @@ double T[MAX] = { 0 };
 double t = 0;
 double sum = 0;
 double F = 0;
+int S[MAX] = {-1};
 
 double before(double r)
 {
@@ -75,6 +76,7 @@ Widget::Widget(QWidget *parent) :
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
+    setWindowTitle("基于窗口指派的准时制生产调度算法模型构建");
 }
 
 Widget::~Widget()
@@ -84,13 +86,13 @@ Widget::~Widget()
 
 void Widget::on_pushButton_clicked()
 {
+    //取值
     num = ui->num_lineedit->text().toInt();
     if (!num)
     {
         QMessageBox::information(nullptr, nullptr, "num is 0");
     }
 
-    QMessageBox::information(nullptr, nullptr, "请输入加工各工件所需要的时间");
     QString piece_time_str = ui->piece_time_textedit->toPlainText();
     QStringList piece_time_list = piece_time_str.split(",");
     for (int i = 0; i < num; ++i)
@@ -113,14 +115,27 @@ void Widget::on_pushButton_clicked()
         double d2 = normal();
         double d3 = delay(r + 1);
         w[r] = getmin(d1, d2, d3);
+        if(w[r] == d1)
+        {
+            S[r] = 0;
+            ui->before_listWidget->addItem(QString::number(r+1));
+        }
+        else if(w[r] == d2)
+        {
+            S[r] = 1;
+            ui->on_listWidget->addItem(QString::number(r+1));
+        }
+        else if(w[r] == d3)
+        {
+            S[r] = 2;
+            ui->delay_listWidget->addItem(QString::number(r+1));
+        }
     }
 
     //W
     for (int r = 0; r < num; ++r)
     {
         W[r] = GetW(r + 1);
-        double ssss = W[r];
-        ssss++;
     }
 
     F = GetF();
@@ -133,19 +148,41 @@ void Widget::on_pushButton_clicked()
         T[r] = t;
     }
 
+    //d、D计算
+    double d = 0;
+    double D = 0;
     for(int r = 0; r < num; ++r)
     {
-        if(piece_time[r] < T[r])
+        if(S[r] == 0)
         {
-            ui->before_listWidget->addItem(QString::number(r+1));
+            d += P[r];
         }
-        else if(piece_time[r] > T[r])
+        else if(S[r] == 1)
         {
-            ui->delay_listWidget->addItem(QString::number(r+1));
-        }
-        else
-        {
-            ui->on_listWidget->addItem(QString::number(r+1));
+            D += P[r];
         }
     }
+    ui->d_lineEdit->setText(QString::number(d));
+    ui->D_lineEdit->setText(QString::number(D));
+
+    //最优排序
+    for(int i = 0; i < num - 1; ++i)
+    {
+        for(int j = 0; j < num - i - 1; j++)
+        {
+            if(piece_time[j] > piece_time[j+1])
+            {
+                int t = piece_time[j+1];
+                piece_time[j+1] = piece_time[j];
+                piece_time[j] = t;
+            }
+        }
+    }
+    QString good;
+    for(int i = 0; i < num; ++i)
+    {
+        good.append(QString::number(piece_time[i]));
+        good.append(",");
+    }
+    ui->good_textEdit->setText(good);
 }

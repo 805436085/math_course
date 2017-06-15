@@ -24,6 +24,8 @@ private slots:
 
 private:
     Ui::Widget *ui;
+
+    bool check();
 };
 
 #endif // WIDGET_H
