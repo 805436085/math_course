@@ -2,36 +2,41 @@
 #include "ui_widget.h"
 #include <cmath>
 
-int num = 0;
-double z, s, c, v, a, b;
-int piece_time[MAX] = { 0 };
-double w[MAX] = { 0 };
-double W[MAX] = { 0 };
-double P[MAX] = { 0 };
-double T[MAX] = { 0 };
-double t = 0;
-double sum = 0;
-double F = 0;
+int num = 0;//工件总数
+double z, s, c, v, a, b;//alpha,beta,delta,gamma,a,b六个参数
+int piece_time[MAX] = { 0 };//各工件时间：3，4，6，9，14，18，20
+double w[MAX] = { 0 };//各工件的小w
+double W[MAX] = { 0 };//各工件的大W
+double P[MAX] = { 0 };//各工件的P
+double T[MAX] = { 0 };//各工件完成时的时间
+double t = 0;//客观时间
+double sum = 0;//累加用的变量
+double F = 0;//总时间成本
 int S[MAX] = {-1};
 
+
+//提前完工权数
 double before(double r)
 {
     double ret = num * c + (r - 1) * z;
     return ret;
 }
 
+//窗口完工权数
 double normal()
 {
     double ret = num * v;
     return ret;
 }
 
+//延迟完工权数
 double delay(double r)
 {
     double ret = (num + 1 - r) * s;
     return ret;
 }
 
+//位置权数值
 double getmin(double d1, double d2, double d3)
 {
     double ret = (d1 < d2) ? d1 : d2;
@@ -39,6 +44,7 @@ double getmin(double d1, double d2, double d3)
     return ret;
 }
 
+//位置函数值
 double GetW(int r)
 {
     if (r == num)
@@ -56,6 +62,7 @@ double GetW(int r)
     }
 }
 
+//总的时间成本
 double GetF()
 {
     double sum = 0;
@@ -66,6 +73,7 @@ double GetF()
     return sum;
 }
 
+//工件的实际完工时间P
 double Getp(int r)
 {
     return (piece_time[r] + b * t) * pow(r + 1, a);
@@ -77,6 +85,7 @@ Widget::Widget(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("基于窗口指派的准时制生产调度算法模型构建");
+    setWindowIcon(QIcon(":/new/prefix1/src/logo.jpg"));
 }
 
 Widget::~Widget()
@@ -84,13 +93,16 @@ Widget::~Widget()
     delete ui;
 }
 
+//当点击“计算”按钮，开始执行此函数，提取参数，计算结果并显示在相关窗口
 void Widget::on_pushButton_clicked()
 {
     //取值
     num = ui->num_lineedit->text().toInt();
     if (!num)
     {
+        //如果num是0则弹出一个对话框并退出“计算”
         QMessageBox::information(nullptr, nullptr, "num is 0");
+        return;
     }
 
     QString piece_time_str = ui->piece_time_textedit->toPlainText();
@@ -108,7 +120,7 @@ void Widget::on_pushButton_clicked()
     a = ui->a_lineEdit->text().toDouble();
     b = ui->b_lineEdit->text().toDouble();
 
-    //w
+    //循环计算w
     for (int r = 0; r < num; ++r)
     {
         double d1 = before(r + 1);
@@ -132,7 +144,7 @@ void Widget::on_pushButton_clicked()
         }
     }
 
-    //W
+    //循环计算W
     for (int r = 0; r < num; ++r)
     {
         W[r] = GetW(r + 1);
@@ -148,7 +160,7 @@ void Widget::on_pushButton_clicked()
         T[r] = t;
     }
 
-    //d、D计算
+    //计算d、D
     double d = 0;
     double D = 0;
     for(int r = 0; r < num; ++r)
